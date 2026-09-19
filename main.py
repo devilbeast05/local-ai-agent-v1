@@ -11,10 +11,19 @@ If the user asks something complicated, break it into
 smaller steps.
 """
 
+# Conversation memory
+messages = [
+    {
+        "role": "system",
+        "content": SYSTEM_PROMPT
+    }
+]
+
 print("================================")
-print("       LOCAL AI ASSISTANT")
+print("      LOCAL AI ASSISTANT V2")
 print("================================")
 print(f"Model: {MODEL}")
+print("Memory: Enabled")
 print("Type 'exit' to quit.\n")
 
 
@@ -26,29 +35,40 @@ while True:
         print("Goodbye!")
         break
 
+    # Add user's message to memory
+    messages.append({
+        "role": "user",
+        "content": user_input
+    })
+
     try:
 
         stream = chat(
             model=MODEL,
-            messages=[
-                {
-                    "role": "system",
-                    "content": SYSTEM_PROMPT
-                },
-                {
-                    "role": "user",
-                    "content": user_input
-                }
-            ],
+            messages=messages,
             stream=True
         )
 
         print("\nAI: ", end="")
 
+        assistant_response = ""
+
         for chunk in stream:
-            print(chunk.message.content, end="", flush=True)
+
+            content = chunk.message.content
+
+            print(content, end="", flush=True)
+
+            assistant_response += content
 
         print("\n")
 
+        # Add AI response to memory
+        messages.append({
+            "role": "assistant",
+            "content": assistant_response
+        })
+
     except Exception as e:
+
         print("\nError:", e)
