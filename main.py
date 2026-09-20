@@ -1,17 +1,17 @@
 from ollama import chat
+from tools import calculator
 
 MODEL = "qwen3:4b"
 
 SYSTEM_PROMPT = """
-You are an AI engineering tutor.
+You are a helpful AI assistant.
 
-Explain technical concepts in simple language.
-Use practical examples whenever useful.
-If the user asks something complicated, break it into
-smaller steps.
+You have access to a calculator tool.
+Use the calculator whenever the user asks you to perform arithmetic.
+
+Do not manually calculate when the calculator tool can be used.
 """
 
-# Conversation memory
 messages = [
     {
         "role": "system",
@@ -19,11 +19,15 @@ messages = [
     }
 ]
 
+tools = [
+    calculator
+]
+
 print("================================")
-print("      LOCAL AI ASSISTANT V2")
+print("       LOCAL AI AGENT V3")
 print("================================")
 print(f"Model: {MODEL}")
-print("Memory: Enabled")
+print("Tools: calculator")
 print("Type 'exit' to quit.\n")
 
 
@@ -35,7 +39,6 @@ while True:
         print("Goodbye!")
         break
 
-    # Add user's message to memory
     messages.append({
         "role": "user",
         "content": user_input
@@ -43,31 +46,58 @@ while True:
 
     try:
 
-        stream = chat(
+        response = chat(
             model=MODEL,
             messages=messages,
-            stream=True
+            tools=tools
         )
 
-        print("\nAI: ", end="")
+        # Check whether the model requested a tool
+        if response.message.tool_calls:
 
-        assistant_response = ""
+            for tool_call in response.message.tool_calls:
 
-        for chunk in stream:
+                print("\n[Tool requested]")
+                print("Tool:", tool_call.function.name)
+                print("Arguments:", tool_call.function.arguments)
 
-            content = chunk.message.content
+                if tool_call.function.name == "calculator":
 
-            print(content, end="", flush=True)
+                    result = calculator(
+                        **tool_call.function.arguments
+                    )
 
-            assistant_response += content
+                    print("Tool result:", result)
 
-        print("\n")
+                    messages.append(response.message)
 
-        # Add AI response to memory
-        messages.append({
-            "role": "assistant",
-            "content": assistant_response
-        })
+                    messages.append({
+                        "role": "tool",
+                        "tool_name": "calculator",
+                        "content": str(result)
+                    })
+
+            # Ask the model to produce the final answer
+            final_response = chat(
+                model=MODEL,
+                messages=messages
+            )
+
+            print("\nAI:", final_response.message.content)
+
+            messages.append({
+                "role": "assistant",
+                "content": final_response.message.content
+            })
+
+        else:
+
+            print("\nAI:", response.message.content)
+
+            messages.append({
+                "role": "assistant",
+                "content": response.message.content
+            })
 
     except Exception as e:
 
