@@ -1,17 +1,32 @@
 from ollama import chat
-from tools import calculator
+
+from tools import calculator, get_current_time, AVAILABLE_TOOLS
+
 
 MODEL = "qwen3:4b"
 
+
 SYSTEM_PROMPT = """
-You are a helpful AI assistant.
+You are a helpful local AI assistant.
 
-You have access to a calculator tool.
-Use the calculator whenever the user asks you to perform arithmetic.
+You have access to tools that you can use when necessary.
 
-Do not manually calculate when the calculator tool can be used.
+Available tools:
+
+1. calculator
+   Use this for mathematical calculations.
+
+2. get_current_time
+   Use this when the user asks for the current date or time.
+
+Use tools when they are appropriate.
+Do not use tools unnecessarily.
+
+After receiving a tool result, provide a clear final answer.
 """
 
+
+# Conversation memory
 messages = [
     {
         "role": "system",
@@ -19,86 +34,135 @@ messages = [
     }
 ]
 
+
+# Tools exposed to the model
 tools = [
-    calculator
+    calculator,
+    get_current_time
 ]
 
-print("================================")
-print("       LOCAL AI AGENT V3")
-print("================================")
+
+print("======================================")
+print("        LOCAL AI AGENT - V3.1")
+print("======================================")
 print(f"Model: {MODEL}")
-print("Tools: calculator")
-print("Type 'exit' to quit.\n")
+print("Tools: calculator, get_current_time")
+print("Type 'exit' to quit.")
+print()
 
 
 while True:
 
     user_input = input("You: ")
 
+    # Exit
     if user_input.lower() == "exit":
-        print("Goodbye!")
+        print("\nGoodbye!")
         break
 
-    messages.append({
-        "role": "user",
-        "content": user_input
-    })
+    # Add user message to memory
+    messages.append(
+        {
+            "role": "user",
+            "content": user_input
+        }
+    )
 
     try:
 
+        # Ask the model what to do
         response = chat(
             model=MODEL,
             messages=messages,
             tools=tools
         )
 
-        # Check whether the model requested a tool
+        # ------------------------------------------------
+        # TOOL CALL
+        # ------------------------------------------------
+
         if response.message.tool_calls:
+
+            # Store the assistant's tool-call message
+            messages.append(response.message)
 
             for tool_call in response.message.tool_calls:
 
-                print("\n[Tool requested]")
-                print("Tool:", tool_call.function.name)
-                print("Arguments:", tool_call.function.arguments)
+                tool_name = tool_call.function.name
+                tool_arguments = tool_call.function.arguments
 
-                if tool_call.function.name == "calculator":
+                print("\n[Agent requested tool]")
+                print("Tool:", tool_name)
+                print("Arguments:", tool_arguments)
 
-                    result = calculator(
-                        **tool_call.function.arguments
-                    )
+                # Find tool from registry
+                tool_function = AVAILABLE_TOOLS.get(tool_name)
 
-                    print("Tool result:", result)
+                if tool_function is None:
 
-                    messages.append(response.message)
+                    result = f"Error: Tool '{tool_name}' not found."
 
-                    messages.append({
+                else:
+
+                    try:
+
+                        result = tool_function(
+                            **tool_arguments
+                        )
+
+                    except Exception as e:
+
+                        result = f"Tool error: {str(e)}"
+
+                print("Result:", result)
+
+                # Send tool result back to model
+                messages.append(
+                    {
                         "role": "tool",
-                        "tool_name": "calculator",
+                        "tool_name": tool_name,
                         "content": str(result)
-                    })
+                    }
+                )
 
-            # Ask the model to produce the final answer
+            # Ask model to generate final answer
             final_response = chat(
                 model=MODEL,
-                messages=messages
+                messages=messages,
+                tools=tools
             )
 
-            print("\nAI:", final_response.message.content)
+            print(
+                "\nAI:",
+                final_response.message.content
+            )
 
-            messages.append({
-                "role": "assistant",
-                "content": final_response.message.content
-            })
+            # Store final response
+            messages.append(
+                {
+                    "role": "assistant",
+                    "content": final_response.message.content
+                }
+            )
+
+        # ------------------------------------------------
+        # NORMAL RESPONSE
+        # ------------------------------------------------
 
         else:
 
-            print("\nAI:", response.message.content)
+            print(
+                "\nAI:",
+                response.message.content
+            )
 
-            messages.append({
-                "role": "assistant",
-                "content": response.message.content
-            })
+            messages.append(
+                {
+                    "role": "assistant",
+                    "content": response.message.content
+                }
+            )
 
     except Exception as e:
 
-        print("\nError:", e)
+        print("\nERROR:", e)
