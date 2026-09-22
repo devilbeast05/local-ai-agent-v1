@@ -1,6 +1,10 @@
 from datetime import datetime
 
 
+# ==================================================
+# CALCULATOR
+# ==================================================
+
 def calculator(a: float, b: float, operation: str):
     """
     Perform a basic mathematical calculation.
@@ -26,6 +30,10 @@ def calculator(a: float, b: float, operation: str):
         return f"Error: Unknown operation '{operation}'."
 
 
+# ==================================================
+# CURRENT TIME
+# ==================================================
+
 def get_current_time():
     """
     Return the current local date and time.
@@ -36,11 +44,32 @@ def get_current_time():
     )
 
 
-# --------------------------------------------------
+# ==================================================
 # TOOL REGISTRY
-# --------------------------------------------------
+# ==================================================
 
 AVAILABLE_TOOLS = {
     "calculator": calculator,
     "get_current_time": get_current_time,
+}
+
+
+# ==================================================
+# TOOL METADATA
+# ==================================================
+
+TOOL_DESCRIPTIONS = {
+    "calculator": {
+        "description": "Perform mathematical calculations.",
+        "parameters": {
+            "a": "First number",
+            "b": "Second number",
+            "operation": "add, subtract, multiply, or divide"
+        }
+    },
+
+    "get_current_time": {
+        "description": "Get the current local date and time.",
+        "parameters": {}
+    }
 }
