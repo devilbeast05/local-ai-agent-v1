@@ -36,7 +36,10 @@ def get_current_time():
     )
 
 
-# Tool registry
+# --------------------------------------------------
+# TOOL REGISTRY
+# --------------------------------------------------
+
 AVAILABLE_TOOLS = {
     "calculator": calculator,
     "get_current_time": get_current_time,
