@@ -1,0 +1,51 @@
+PYTHON PROGRAMMING
+
+Python is a high-level general-purpose programming language.
+
+Python is commonly used for:
+
+- Artificial Intelligence
+- Machine Learning
+- Data Science
+- Web Development
+- Automation
+- Robotics
+- Scripting
+
+Python uses indentation to define code blocks.
+
+A Python function can be defined using the def keyword.
+
+Example:
+
+def add(a, b):
+    return a + b
+
+Python has built-in data structures such as:
+
+- list
+- tuple
+- dictionary
+- set
+
+Python also supports object-oriented programming.
+
+Common Python libraries include:
+
+NumPy:
+Used for numerical computing.
+
+Pandas:
+Used for data manipulation and analysis.
+
+Matplotlib:
+Used for visualization.
+
+FastAPI:
+Used for building APIs.
+
+PyTorch:
+Used for machine learning and deep learning.
+
+OpenCV:
+Used for computer vision.

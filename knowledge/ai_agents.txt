@@ -1,0 +1,47 @@
+AI AGENTS
+
+An AI agent is a software system that can perceive a user's
+request, reason about the task, decide what actions are needed,
+use tools, and produce an outcome.
+
+Unlike a simple chatbot, an agent can perform actions through
+tools.
+
+A typical AI agent contains several components:
+
+1. Language Model
+The language model understands the user's request and generates
+responses.
+
+2. Memory
+Memory allows the application to maintain information from
+previous interactions.
+
+3. Tools
+Tools allow the agent to interact with external systems or
+perform actions.
+
+Examples include calculators, APIs, databases, file systems,
+and search engines.
+
+4. Agent Loop
+The agent loop allows the model to decide whether it needs a
+tool, execute the tool, receive the result, and continue
+reasoning.
+
+5. Retrieval
+Retrieval allows an agent to search a knowledge base and provide
+relevant information to the language model.
+
+RAG stands for Retrieval-Augmented Generation.
+
+In a RAG system, documents are divided into smaller chunks.
+Each chunk is converted into an embedding vector.
+
+When a user asks a question, the question is also converted into
+an embedding.
+
+The system compares the question embedding with document
+embeddings and retrieves the most relevant chunks.
+
+Those chunks are then provided to the language model as context.
